@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ExclusionLauncher — Minecraft Client Launcher</title>
+<meta name="description" content="ExclusionLauncher — современный лаунчер для Minecraft клиентов. 13 клиентов, 8 версий, 10 тем оформления." />
+<style>
+/* ============ RESET & BASE ============ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --radius: 0.75rem;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", Menlo, Consolas, monospace;
+}
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-sans);
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select { font-family: inherit; }
+
+/* ============ THEME: Sunset (default dark) ============ */
+html.dark, .dark {
+  --background: oklch(0.09 0.005 240);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.13 0.008 240);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.11 0.008 240);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.7 0.18 24);
+  --primary-foreground: oklch(0.13 0.008 240);
+  --secondary: oklch(0.2 0.01 240);
+  --muted: oklch(0.18 0.008 240);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.25 0.02 24);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --brand: 24 95% 56%;
+  --brand-foreground: 0 0% 100%;
+  --glow: 24 95% 56%;
+}
+/* ============ THEME: Nuclear (red/black) ============ */
+html.nuclear, .nuclear {
+  --background: oklch(0.05 0.01 20);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.10 0.02 20);
+  --popover: oklch(0.08 0.02 20);
+  --primary: oklch(0.62 0.28 25);
+  --secondary: oklch(0.16 0.02 20);
+  --muted: oklch(0.14 0.015 20);
+  --muted-foreground: oklch(0.70 0.02 25);
+  --accent: oklch(0.20 0.04 25);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --brand: 0 95% 55%;
+  --brand-foreground: 0 0% 100%;
+  --glow: 0 95% 55%;
+}
+/* ============ THEME: Blood ============ */
+html.blood, .blood {
+  --background: oklch(0.06 0.02 350);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.11 0.03 350);
+  --popover: oklch(0.09 0.03 350);
+  --primary: oklch(0.55 0.25 350);
+  --secondary: oklch(0.17 0.03 350);
+  --muted: oklch(0.15 0.02 350);
+  --muted-foreground: oklch(0.72 0.025 350);
+  --accent: oklch(0.22 0.05 350);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --brand: 345 90% 55%;
+  --brand-foreground: 0 0% 100%;
+  --glow: 345 90% 55%;
+}
+/* ============ THEME: Cyber ============ */
+html.cyber, .cyber {
+  --background: oklch(0.08 0.02 300);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.13 0.03 300);
+  --popover: oklch(0.11 0.03 300);
+  --primary: oklch(0.65 0.28 310);
+  --secondary: oklch(0.2 0.03 300);
+  --muted: oklch(0.18 0.02 300);
+  --muted-foreground: oklch(0.75 0.02 300);
+  --accent: oklch(0.25 0.05 310);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --brand: 310 95% 65%;
+  --brand-foreground: 0 0% 100%;
+  --glow: 310 95% 65%;
+}
+/* ============ THEME: Void ============ */
+html.void, .void {
+  --background: oklch(0.05 0.02 280);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.10 0.025 280);
+  --popover: oklch(0.08 0.025 280);
+  --primary: oklch(0.60 0.22 285);
+  --secondary: oklch(0.16 0.025 280);
+  --muted: oklch(0.14 0.02 280);
+  --muted-foreground: oklch(0.70 0.025 285);
+  --accent: oklch(0.20 0.04 285);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --brand: 285 90% 65%;
+  --brand-foreground: 0 0% 100%;
+  --glow: 285 90% 65%;
+}
+/* ============ THEME: Toxic ============ */
+html.toxic, .toxic {
+  --background: oklch(0.08 0.02 150);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.13 0.03 150);
+  --popover: oklch(0.11 0.03 150);
+  --primary: oklch(0.7 0.25 145);
+  --secondary: oklch(0.2 0.03 150);
+  --muted: oklch(0.18 0.02 150);
+  --muted-foreground: oklch(0.75 0.02 150);
+  --accent: oklch(0.25 0.05 145);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --brand: 145 95% 60%;
+  --brand-foreground: 0 0% 100%;
+  --glow: 145 95% 60%;
+}
+/* ============ THEME: Ice ============ */
+html.ice, .ice {
+  --background: oklch(0.08 0.02 220);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.13 0.03 220);
+  --popover: oklch(0.11 0.03 220);
+  --primary: oklch(0.7 0.18 200);
+  --secondary: oklch(0.2 0.03 220);
+  --muted: oklch(0.18 0.02 220);
+  --muted-foreground: oklch(0.75 0.02 220);
+  --accent: oklch(0.25 0.05 200);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --brand: 200 95% 60%;
+  --brand-foreground: 0 0% 100%;
+  --glow: 200 95% 60%;
+}
+/* ============ THEME: Coral ============ */
+html.coral, .coral {
+  --background: oklch(0.07 0.015 15);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.12 0.025 15);
+  --popover: oklch(0.10 0.025 15);
+  --primary: oklch(0.70 0.20 15);
+  --secondary: oklch(0.18 0.025 15);
+  --muted: oklch(0.16 0.02 15);
+  --muted-foreground: oklch(0.72 0.025 15);
+  --accent: oklch(0.22 0.04 15);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --brand: 15 95% 65%;
+  --brand-foreground: 0 0% 100%;
+  --glow: 15 95% 65%;
+}
+/* ============ THEME: Gold ============ */
+html.gold, .gold {
+  --background: oklch(0.08 0.01 80);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.13 0.02 80);
+  --popover: oklch(0.11 0.02 80);
+  --primary: oklch(0.75 0.18 85);
+  --primary-foreground: oklch(0.13 0.02 80);
+  --secondary: oklch(0.20 0.02 80);
+  --muted: oklch(0.18 0.015 80);
+  --muted-foreground: oklch(0.72 0.02 85);
+  --accent: oklch(0.25 0.04 85);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --brand: 45 95% 60%;
+  --brand-foreground: 0 0% 10%;
+  --glow: 45 95% 60%;
+}
+/* ============ THEME: Midnight ============ */
+html.midnight, .midnight {
+  --background: oklch(0.06 0.005 240);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.10 0.005 240);
+  --popover: oklch(0.08 0.005 240);
+  --primary: oklch(0.55 0.015 240);
+  --secondary: oklch(0.16 0.005 240);
+  --muted: oklch(0.14 0.005 240);
+  --muted-foreground: oklch(0.65 0.005 240);
+  --accent: oklch(0.20 0.005 240);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --brand: 215 80% 60%;
+  --brand-foreground: 0 0% 100%;
+  --glow: 215 80% 60%;
+}
+
+/* ============ UTILITIES ============ */
+.text-brand { color: hsl(var(--brand)); }
+.bg-brand { background-color: hsl(var(--brand)); }
+.glass {
+  background: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+.glass-strong {
+  background: hsl(var(--card) / 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--border) / 0.6);
+}
+.shadow-glow { box-shadow: 0 0 30px -5px hsl(var(--glow) / 0.5), 0 0 60px -10px hsl(var(--glow) / 0.3); }
+.shadow-glow-sm { box-shadow: 0 0 20px -8px hsl(var(--glow) / 0.6); }
+.shadow-glow-lg { box-shadow: 0 0 50px -5px hsl(var(--glow) / 0.6), 0 0 100px -10px hsl(var(--glow) / 0.4); }
+.text-glow { text-shadow: 0 0 20px hsl(var(--glow) / 0.6), 0 0 40px hsl(var(--glow) / 0.3); }
+.tabular-nums { font-variant-numeric: tabular-nums; }
+.bg-grid {
+  background-image:
+    linear-gradient(to right, hsl(var(--foreground) / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.bg-grid-sm {
+  background-image:
+    linear-gradient(to right, hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.font-mono { font-family: var(--font-mono); }
+
+/* ============ LAYOUT ============ */
+.container { max-width: 80rem; margin: 0 auto; padding: 0 1rem; }
+@media (min-width: 640px) { .container { padding: 0 1.5rem; } }
+@media (min-width: 1024px) { .container { padding: 0 2rem; } }
+
+/* ============ PARTICLES BG ============ */
+#particles-canvas {
+  position: fixed; inset: 0; z-index: -10;
+  pointer-events: none; opacity: 0.7;
+}
+.bg-blobs { position: fixed; inset: 0; z-index: -11; pointer-events: none; overflow: hidden; }
+.bg-blob { position: absolute; border-radius: 9999px; filter: blur(80px); opacity: 0.25; }
+.bg-vignette {
+  position: fixed; inset: 0; z-index: -9; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, hsl(var(--background) / 0.7) 100%);
+}
+.bg-grid-bg {
+  position: fixed; inset: 0; z-index: -12; pointer-events: none;
+  background-image:
+    linear-gradient(to right, hsl(var(--foreground) / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
+  background-size: 48px 48px; opacity: 0.6;
+}
+
+/* ============ HEADER ============ */
+.header {
+  position: sticky; top: 0; z-index: 40; width: 100%;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+}
+.header.scrolled {
+  border-bottom-color: hsl(var(--border) / 0.6);
+  background: hsl(var(--card) / 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.header-inner {
+  display: flex; align-items: center; gap: 1rem;
+  height: 4rem; max-width: 80rem; margin: 0 auto;
+  padding: 0 1rem;
+}
+@media (min-width: 640px) { .header-inner { padding: 0 1.5rem; } }
+@media (min-width: 1024px) { .header-inner { padding: 0 2rem; } }
+.logo { display: flex; align-items: center; gap: 0.625rem; }
+.logo-badge {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  width: 2.25rem; height: 2.25rem; border-radius: 0.75rem;
+  background: linear-gradient(135deg, hsl(var(--brand)), hsl(var(--brand) / 0.7));
+  color: hsl(var(--brand-foreground));
+  font-family: var(--font-mono); font-weight: 700; font-size: 1rem;
+  box-shadow: 0 0 20px -8px hsl(var(--glow) / 0.6);
+  transition: transform 0.3s ease;
+  animation: float-3d 8s ease-in-out infinite;
+}
+.logo:hover .logo-badge { transform: scale(1.1); }
+.logo-badge::before {
+  content: ""; position: absolute; inset: -4px; z-index: -1;
+  border-radius: 1rem; background: hsl(var(--brand) / 0.3);
+  filter: blur(8px); opacity: 0.6;
+}
+.logo-text { display: flex; flex-direction: column; line-height: 1; }
+.logo-text .name { font-size: 1rem; font-weight: 700; letter-spacing: -0.025em; }
+.logo-text .name span { color: hsl(var(--brand)); }
+.logo-text .ver { font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.15em; color: hsl(var(--muted-foreground)); margin-top: 0.125rem; }
+
+.nav-desktop { display: none; margin-left: auto; align-items: center; gap: 0.25rem; }
+@media (min-width: 768px) { .nav-desktop { display: flex; } }
+.nav-link {
+  border-radius: 0.5rem; padding: 0.5rem 0.75rem;
+  font-size: 0.875rem; font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  transition: color 0.2s, background 0.2s;
+  position: relative;
+}
+.nav-link:hover { color: hsl(var(--foreground)); background: hsl(var(--muted) / 0.6); }
+.nav-link::after {
+  content: ""; position: absolute; left: 0.75rem; right: 0.75rem; bottom: 0.25rem;
+  height: 1px; background: hsl(var(--brand)); width: 0; transition: width 0.3s;
+}
+.nav-link:hover::after { width: calc(100% - 1.5rem); }
+
+.header-right { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+@media (min-width: 768px) { .header-right { margin-left: 0.5rem; } }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 500; border-radius: 0.75rem;
+  transition: all 0.2s; border: 1px solid transparent;
+  cursor: pointer; white-space: nowrap;
+}
+.btn-primary {
+  background: hsl(var(--brand)); color: hsl(var(--brand-foreground));
+  box-shadow: 0 0 20px -8px hsl(var(--glow) / 0.6);
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-outline {
+  background: transparent; border-color: hsl(var(--border) / 0.6);
+  color: hsl(var(--foreground));
+}
+.btn-outline:hover { border-color: hsl(var(--brand) / 0.5); background: hsl(var(--brand) / 0.05); }
+.btn-ghost { background: transparent; color: hsl(var(--foreground)); }
+.btn-ghost:hover { background: hsl(var(--muted) / 0.6); }
+.btn-sm { height: 2.25rem; padding: 0 0.75rem; font-size: 0.875rem; }
+.btn-lg { height: 3.5rem; padding: 0 1.5rem; font-size: 1.125rem; font-weight: 700; }
+
+.menu-toggle {
+  display: none; height: 2.25rem; padding: 0 0.75rem;
+  border-radius: 9999px; font-family: var(--font-mono); font-size: 0.875rem;
+}
+@media (max-width: 767px) { .menu-toggle { display: inline-flex; } }
+
+.mobile-nav { display: none; border-top: 1px solid hsl(var(--border) / 0.6); background: hsl(var(--card) / 0.85); backdrop-filter: blur(16px); }
+.mobile-nav.open { display: block; }
+.mobile-nav a { display: block; padding: 0.625rem 0.75rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; }
+.mobile-nav a:hover { background: hsl(var(--muted) / 0.6); }
+
+/* ============ THEME SWITCHER ============ */
+.theme-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  height: 2.25rem; padding: 0 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: transparent;
+  font-size: 0.75rem; font-weight: 500;
+  transition: all 0.2s;
+}
+.theme-btn:hover { border-color: hsl(var(--brand) / 0.5); background: hsl(var(--brand) / 0.05); }
+.theme-swatch {
+  width: 1rem; height: 1rem; border-radius: 9999px;
+  box-shadow: 0 0 0 2px hsl(var(--background));
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+.theme-caret { font-size: 0.625rem; opacity: 0.6; }
+@media (max-width: 639px) { .theme-btn .theme-name { display: none; } .theme-btn .theme-caret { display: none; } }
+
+.theme-menu {
+  position: absolute; top: calc(100% + 0.5rem); right: 0;
+  width: 18rem; padding: 0.5rem;
+  border-radius: 1rem;
+  background: hsl(var(--card) / 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--border) / 0.6);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  display: none; z-index: 100;
+}
+.theme-menu.open { display: block; }
+.theme-menu-title {
+  font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.15em;
+  color: hsl(var(--muted-foreground)); padding: 0.375rem 0.5rem 0.625rem;
+  font-family: var(--font-mono);
+}
+.theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; }
+.theme-item {
+  display: flex; flex-direction: column; gap: 0.125rem;
+  padding: 0.5rem; border-radius: 0.5rem; cursor: pointer;
+  transition: background 0.15s;
+}
+.theme-item:hover { background: hsl(var(--brand) / 0.1); }
+.theme-item-top { display: flex; align-items: center; gap: 0.5rem; }
+.theme-item-swatch {
+  width: 1.25rem; height: 1.25rem; border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border));
+}
+.theme-item-name { font-size: 0.75rem; font-weight: 500; flex: 1; }
+.theme-item-active { color: hsl(var(--brand)); font-size: 0.625rem; font-family: var(--font-mono); }
+.theme-item-desc { font-size: 0.625rem; color: hsl(var(--muted-foreground)); padding-left: 1.75rem; }
+
+/* ============ HERO ============ */
+.hero { padding: 3rem 0 3rem; position: relative; }
+@media (min-width: 640px) { .hero { padding-top: 4rem; } }
+.hero-inner { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1.5rem; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  border-radius: 9999px; border: 1px solid hsl(var(--brand) / 0.3);
+  background: hsl(var(--brand) / 0.1); padding: 0.25rem 0.75rem;
+  font-size: 0.75rem; font-weight: 500; color: hsl(var(--brand));
+  box-shadow: 0 0 20px -8px hsl(var(--glow) / 0.6);
+}
+.hero-badge .dot {
+  position: relative; display: inline-flex; width: 0.5rem; height: 0.5rem;
+}
+.hero-badge .dot::before {
+  content: ""; position: absolute; inset: 0; border-radius: 9999px;
+  background: hsl(var(--brand)); animation: pulse-ring 2s cubic-bezier(0,0,0.2,1) infinite;
+}
+.hero-badge .dot::after {
+  content: ""; position: relative; display: inline-block; width: 0.5rem; height: 0.5rem;
+  border-radius: 9999px; background: hsl(var(--brand));
+}
+
+.hero-title {
+  font-size: 2.5rem; font-weight: 800; letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+@media (min-width: 640px) { .hero-title { font-size: 3.75rem; } }
+@media (min-width: 1024px) { .hero-title { font-size: 4.5rem; } }
+.hero-title .grad {
+  background: linear-gradient(to right, hsl(var(--brand)), hsl(var(--brand) / 0.6), hsl(var(--brand)));
+  background-size: 200% 200%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  text-shadow: 0 0 20px hsl(var(--glow) / 0.6), 0 0 40px hsl(var(--glow) / 0.3);
+  animation: gradient-text 6s ease infinite;
+  position: relative; display: inline-block;
+}
+.hero-title .grad::before, .hero-title .grad::after {
+  content: attr(data-text);
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+}
+.hero-title .grad::before {
+  color: hsl(var(--brand)); animation: glitch 4s infinite;
+  clip-path: inset(0 0 60% 0); opacity: 0.7;
+}
+.hero-title .grad::after {
+  color: cyan; animation: glitch 3s infinite reverse;
+  clip-path: inset(60% 0 0 0); opacity: 0.5;
+}
+
+.hero-sub { max-width: 42rem; font-size: 1rem; line-height: 1.625; color: hsl(var(--muted-foreground)); }
+@media (min-width: 640px) { .hero-sub { font-size: 1.125rem; } }
+
+.hero-cta { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
+@media (min-width: 640px) { .hero-cta { flex-direction: row; width: auto; } }
+
+.hero-meta {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 0.25rem 1rem; font-size: 0.6875rem; font-family: var(--font-mono);
+  text-transform: uppercase; letter-spacing: 0.1em; color: hsl(var(--muted-foreground));
+}
+.hero-meta .sep { opacity: 0.3; }
+
+/* stats */
+.hero-stats {
+  margin-top: 2rem; display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem; width: 100%; max-width: 48rem;
+}
+@media (min-width: 640px) { .hero-stats { grid-template-columns: repeat(4, 1fr); } }
+.stat-card {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 0.25rem; padding: 0.75rem 1rem; border-radius: 1rem;
+  background: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.5);
+  transition: border-color 0.2s, transform 0.3s;
+}
+.stat-card:hover { border-color: hsl(var(--brand) / 0.4); transform: translateY(-2px); }
+.stat-value { font-size: 1.5rem; font-weight: 700; color: hsl(var(--brand)); font-variant-numeric: tabular-nums; }
+@media (min-width: 640px) { .stat-value { font-size: 1.5rem; } }
+.stat-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.1em; color: hsl(var(--muted-foreground)); }
+
+/* ============ DOWNLOAD PLATE ============ */
+.download-section { padding: 3rem 0; }
+.download-plate {
+  position: relative; overflow: hidden;
+  border-radius: 1.5rem; padding: 1.5rem;
+  background: hsl(var(--card) / 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--brand) / 0.3);
+  box-shadow: 0 0 50px -5px hsl(var(--glow) / 0.6);
+}
+@media (min-width: 640px) { .download-plate { padding: 2rem; } }
+.download-plate-bg {
+  position: absolute; inset: 0; opacity: 0.3; pointer-events: none;
+  background: radial-gradient(circle at 20% 20%, hsl(var(--brand) / 0.4), transparent 50%),
+              radial-gradient(circle at 80% 80%, hsl(var(--brand) / 0.3), transparent 50%);
+}
+.download-plate-grid {
+  position: absolute; inset: 0; opacity: 0.4; pointer-events: none;
+  background-image:
+    linear-gradient(to right, hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.scan-glow {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 8rem; pointer-events: none;
+  background: linear-gradient(to right, hsl(var(--brand) / 0.4), transparent);
+  animation: scan-glow 3s ease-in-out infinite;
+}
+.download-plate-inner {
+  position: relative; display: flex; flex-direction: column; gap: 1.5rem;
+}
+@media (min-width: 640px) { .download-plate-inner { flex-direction: row; align-items: center; } }
+.download-text { flex: 1; }
+.download-label { font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.15em; color: hsl(var(--brand)); margin-bottom: 0.25rem; }
+.download-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
+@media (min-width: 640px) { .download-title { font-size: 1.875rem; } }
+.download-title span { color: hsl(var(--brand)); }
+.download-desc { margin-top: 0.5rem; font-size: 0.875rem; color: hsl(var(--muted-foreground)); max-width: 36rem; line-height: 1.625; }
+.download-meta { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.6875rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; color: hsl(var(--muted-foreground)); }
+.download-meta .sep { opacity: 0.3; }
+.download-meta .ok { color: hsl(var(--brand)); }
+.download-btn-wrap { width: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
+@media (min-width: 640px) { .download-btn-wrap { width: auto; } }
+.btn-download {
+  position: relative; overflow: hidden;
+  border-radius: 1rem; height: 3.5rem; padding: 0 2rem;
+  font-size: 1.125rem; font-weight: 700;
+  background: hsl(var(--brand)); color: hsl(var(--brand-foreground));
+  box-shadow: 0 0 30px -5px hsl(var(--glow) / 0.5), 0 0 60px -10px hsl(var(--glow) / 0.3);
+  transition: opacity 0.2s;
+}
+.btn-download:hover { opacity: 0.9; }
+.btn-download .shimmer { position: absolute; inset: 0; opacity: 0.3; animation: shimmer 2s infinite; }
+.btn-download-label { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.5rem; }
+.download-hint { font-size: 0.625rem; text-align: center; color: hsl(var(--muted-foreground)); font-family: var(--font-mono); }
+
+/* ============ CLIENTS LIST ============ */
+.clients-section { padding: 2rem 0; }
+.clients-header { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+.clients-label { display: flex; align-items: center; gap: 0.5rem; color: hsl(var(--brand)); }
+.clients-label span { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; }
+.clients-title { font-size: 1.875rem; font-weight: 700; letter-spacing: -0.025em; }
+@media (min-width: 640px) { .clients-title { font-size: 2.25rem; } }
+.clients-title span { color: hsl(var(--brand)); }
+.clients-desc { margin-top: 0.5rem; font-size: 0.875rem; color: hsl(var(--muted-foreground)); }
+
+.clients-filters { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+@media (min-width: 640px) { .clients-filters { flex-direction: row; } }
+.input, .select {
+  height: 2.5rem; padding: 0 0.75rem; border-radius: 0.75rem;
+  background: hsl(var(--muted) / 0.4);
+  border: 1px solid hsl(var(--border) / 0.6);
+  color: hsl(var(--foreground)); font-size: 0.875rem;
+  font-family: var(--font-mono);
+  outline: none; transition: border-color 0.2s;
+}
+.input:focus, .select:focus { border-color: hsl(var(--brand)); }
+.input { flex: 1; min-width: 0; }
+.select-wrap { position: relative; }
+.select { appearance: none; padding-right: 2rem; cursor: pointer; }
+.select-wrap::after {
+  content: "▾"; position: absolute; right: 0.75rem; top: 50%;
+  transform: translateY(-50%); font-size: 0.75rem;
+  color: hsl(var(--muted-foreground)); opacity: 0.6; pointer-events: none;
+}
+.select-full { width: 100%; }
+@media (min-width: 640px) { .select-52 { width: 13rem; } .select-44 { width: 11rem; } }
+
+.clients-list { display: flex; flex-direction: column; gap: 0.625rem; }
+.client-row {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+  gap: 0.75rem; padding: 0.75rem;
+  border-radius: 1rem;
+  background: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.5);
+  transition: border-color 0.2s, background 0.2s, transform 0.3s;
+}
+.client-row:hover { border-color: hsl(var(--brand) / 0.4); background: hsl(var(--brand) / 0.05); transform: translateY(-1px); }
+@media (min-width: 640px) {
+  .client-row { grid-template-columns: auto 2fr 1fr auto; padding: 1rem; gap: 1rem; }
+}
+.client-avatar {
+  position: relative; flex-shrink: 0;
+  width: 2.75rem; height: 2.75rem;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 0.75rem; color: #fff;
+  font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem;
+  box-shadow: 0 0 20px -8px hsl(var(--glow) / 0.6);
+}
+@media (min-width: 640px) { .client-avatar { width: 3rem; height: 3rem; font-size: 1rem; } }
+.client-info { min-width: 0; }
+.client-name-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.client-name { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.client-badge {
+  display: inline-block; border-radius: 9999px;
+  background: hsl(var(--brand)); color: hsl(var(--brand-foreground));
+  padding: 0.125rem 0.5rem; font-size: 0.5625rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  box-shadow: 0 0 20px -8px hsl(var(--glow) / 0.6); white-space: nowrap;
+}
+.client-tag { font-size: 0.75rem; color: hsl(var(--muted-foreground)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 0.125rem; }
+.client-meta { display: none; flex-direction: column; align-items: flex-end; gap: 0.125rem; font-size: 0.75rem; color: hsl(var(--muted-foreground)); font-family: var(--font-mono); }
+@media (min-width: 640px) { .client-meta { display: flex; } }
+.client-meta .rating { color: hsl(var(--brand)); }
+.client-versions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; justify-content: flex-end; max-width: 11.25rem; }
+.client-version {
+  border: 1px solid hsl(var(--border) / 0.6); background: hsl(var(--muted) / 0.4);
+  border-radius: 0.375rem; padding: 0.125rem 0.5rem;
+  font-size: 0.625rem; font-family: var(--font-mono); white-space: nowrap;
+  transition: border-color 0.2s;
+}
+.client-row:hover .client-version { border-color: hsl(var(--brand) / 0.4); }
+
+.clients-empty {
+  border: 1px dashed hsl(var(--border)); border-radius: 1.5rem;
+  padding: 3rem; text-align: center;
+  color: hsl(var(--muted-foreground)); font-family: var(--font-mono); font-size: 0.875rem;
+}
+.clients-count { margin-top: 1.5rem; text-align: center; font-size: 0.75rem; font-family: var(--font-mono); color: hsl(var(--muted-foreground)); }
+
+/* ============ FEATURES ============ */
+.features-section { padding: 4rem 0; }
+.features-header { text-align: center; margin-bottom: 2.5rem; }
+.features-label { display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: hsl(var(--brand)); margin-bottom: 0.5rem; }
+.features-label span { font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.15em; }
+.features-title { font-size: 1.875rem; font-weight: 700; letter-spacing: -0.025em; }
+@media (min-width: 640px) { .features-title { font-size: 2.25rem; } }
+.features-title .glitch {
+  position: relative; color: hsl(var(--brand)); display: inline-block;
+}
+.features-title .glitch::before, .features-title .glitch::after {
+  content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+}
+.features-title .glitch::before {
+  color: hsl(var(--brand)); animation: glitch 4s infinite;
+  clip-path: inset(0 0 60% 0); opacity: 0.7;
+}
+.features-title .glitch::after {
+  color: cyan; animation: glitch 3s infinite reverse;
+  clip-path: inset(60% 0 0 0); opacity: 0.5;
+}
+.features-desc { margin-top: 0.5rem; color: hsl(var(--muted-foreground); max-width: 42rem; margin-left: auto; margin-right: auto; font-size: 0.875rem; }
+
+.features-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 640px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .features-grid { grid-template-columns: repeat(4, 1fr); } }
+.feature-card {
+  position: relative; overflow: hidden;
+  border-radius: 1.5rem; padding: 1.25rem;
+  background: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.5);
+  transition: border-color 0.2s, transform 0.3s;
+}
+.feature-card:hover { border-color: hsl(var(--brand) / 0.4); transform: translateY(-2px); }
+.feature-num-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.75rem; }
+.feature-num {
+  font-family: var(--font-mono); font-size: 1.875rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.feature-num-total { font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.15em; color: hsl(var(--muted-foreground)); }
+.feature-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.375rem; }
+.feature-desc { font-size: 0.875rem; color: hsl(var(--muted-foreground)); line-height: 1.625; }
+.feature-card .underline { position: absolute; bottom: 0; left: 0; height: 2px; width: 0; background: hsl(var(--brand)); transition: width 0.5s; }
+.feature-card:hover .underline { width: 100%; }
+
+/* marquee */
+.marquee-wrap {
+  margin-top: 3rem; position: relative; overflow: hidden;
+  border: 1px solid hsl(var(--border) / 0.6); background: hsl(var(--muted) / 0.2);
+  border-radius: 1rem; padding: 1rem 0;
+}
+.marquee-track {
+  display: flex; width: max-content; gap: 2rem;
+  animation: marquee 40s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+.marquee-item { font-size: 1.25rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.15em; color: hsl(var(--muted-foreground) / 0.6); white-space: nowrap; }
+.marquee-item .sep { color: hsl(var(--brand)); }
+
+/* ============ FOOTER ============ */
+.footer {
+  margin-top: auto; border-top: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card) / 0.85); backdrop-filter: blur(16px);
+}
+.footer-inner { max-width: 80rem; margin: 0 auto; padding: 3rem 1rem; }
+@media (min-width: 640px) { .footer-inner { padding: 3rem 1.5rem; } }
+@media (min-width: 1024px) { .footer-inner { padding: 3rem 2rem; } }
+.footer-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+@media (min-width: 640px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; } }
+.footer-brand-block { }
+.footer-brand-row { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.75rem; }
+.footer-brand-badge {
+  width: 2rem; height: 2rem; border-radius: 0.5rem;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, hsl(var(--brand)), hsl(var(--brand) / 0.7));
+  color: hsl(var(--brand-foreground)); font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem;
+  box-shadow: 0 0 20px -8px hsl(var(--glow) / 0.6);
+}
+.footer-brand-name { font-size: 1rem; font-weight: 700; }
+.footer-brand-name span { color: hsl(var(--brand)); }
+.footer-desc { font-size: 0.875rem; color: hsl(var(--muted-foreground)); max-width: 28rem; line-height: 1.625; }
+.footer-social { margin-top: 1rem; display: flex; gap: 0.5rem; }
+.footer-social a {
+  height: 2.25rem; padding: 0 0.75rem; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 0.5rem; border: 1px solid hsl(var(--border) / 0.6);
+  font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em;
+  transition: all 0.2s;
+}
+.footer-social a:hover { border-color: hsl(var(--brand) / 0.5); background: hsl(var(--brand) / 0.05); color: hsl(var(--brand)); }
+.footer-col-title { font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; color: hsl(var(--muted-foreground)); margin-bottom: 0.75rem; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem; }
+.footer-links a { color: hsl(var(--muted-foreground)); transition: color 0.2s; position: relative; display: inline-block; }
+.footer-links a:hover { color: hsl(var(--brand)); }
+.footer-bottom {
+  margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid hsl(var(--border) / 0.6);
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+  font-size: 0.75rem; color: hsl(var(--muted-foreground));
+}
+@media (min-width: 640px) { .footer-bottom { flex-direction: row; justify-content: space-between; } }
+.footer-made { display: flex; align-items: center; gap: 0.375rem; font-family: var(--font-mono); }
+.footer-made .heart { color: hsl(var(--brand)); animation: pulse-glow 3s ease-in-out infinite; }
+
+/* ============ POPUPS ============ */
+.popup-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center; padding: 1rem;
+  background: hsl(var(--background) / 0.85);
+  backdrop-filter: blur(8px);
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.popup-overlay.open { opacity: 1; pointer-events: auto; }
+.popup-card {
+  position: relative; width: 100%; max-width: 28rem;
+  overflow: hidden; border-radius: 1.5rem;
+  background: hsl(var(--card) / 0.95); backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--border) / 0.6);
+  box-shadow: 0 0 50px -5px hsl(var(--glow) / 0.6), 0 0 100px -10px hsl(var(--glow) / 0.4);
+  transform: scale(0.92) translateY(20px); opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), opacity 0.2s;
+}
+.popup-overlay.open .popup-card { transform: scale(1) translateY(0); opacity: 1; }
+.popup-scan-line { position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, transparent, hsl(var(--brand)), transparent); opacity: 0.8; }
+.popup-header { display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid hsl(var(--border) / 0.6); padding: 1rem 1.5rem; }
+.popup-avatar {
+  position: relative; width: 2.5rem; height: 2.5rem;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 0.75rem; color: #fff; font-family: var(--font-mono); font-weight: 700;
+  box-shadow: 0 0 20px -8px hsl(var(--glow) / 0.6);
+}
+.popup-avatar::before { content: ""; position: absolute; inset: -4px; z-index: -1; border-radius: 1rem; background: hsl(var(--brand) / 0.3); filter: blur(8px); animation: pulse-glow 3s ease-in-out infinite; }
+.popup-header-text { flex: 1; }
+.popup-header-label { font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; color: hsl(var(--brand)); }
+.popup-header-title { font-size: 1rem; font-weight: 600; }
+.popup-header-title .ver { color: hsl(var(--muted-foreground)); font-weight: 400; }
+.popup-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.popup-status-row { display: flex; flex-direction: column; gap: 0.375rem; }
+.popup-status-label { display: flex; justify-content: space-between; font-size: 0.75rem; }
+.popup-status-label .text { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; color: hsl(var(--muted-foreground)); }
+.popup-status-label .pct { font-family: var(--font-mono); color: hsl(var(--brand)); font-variant-numeric: tabular-nums; }
+.popup-progress { position: relative; height: 0.625rem; width: 100%; overflow: hidden; border-radius: 9999px; background: hsl(var(--muted) / 0.7); }
+.popup-progress-fill {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 0%;
+  background: linear-gradient(90deg, hsl(var(--brand) / 0.8) 0%, hsl(var(--brand) 50%, hsl(var(--brand) / 0.8) 100%));
+  background-size: 200% 100%; animation: shimmer 1.5s infinite;
+  border-radius: 9999px; transition: width 0.1s linear;
+}
+.popup-progress .shimmer-overlay { position: absolute; inset: 0; animation: shimmer 2s infinite; }
+
+.popup-steps { border-radius: 1rem; background: hsl(var(--muted) / 0.4); padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.popup-steps-title { font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; color: hsl(var(--muted-foreground)); margin-bottom: 0.25rem; }
+.popup-step { display: flex; align-items: center; gap: 0.625rem; font-family: var(--font-mono); font-size: 0.75rem; transition: color 0.2s; }
+.popup-step .marker { width: 0.75rem; text-align: center; }
+.popup-step.done { color: hsl(var(--foreground)); }
+.popup-step.done .marker { color: hsl(var(--brand)); }
+.popup-step.current { color: hsl(var(--brand)); }
+.popup-step.current .marker { display: inline-block; }
+.popup-step.pending { color: hsl(var(--muted-foreground) / 0.5); }
+.popup-step-text { flex: 1; }
+.popup-step.current .blink { animation: blink 1s step-start infinite; color: hsl(var(--brand)); }
+
+.popup-hint { display: flex; align-items: flex-start; gap: 0.5rem; border: 1px solid hsl(var(--brand) / 0.3); background: hsl(var(--brand) / 0.05); border-radius: 0.75rem; padding: 0.75rem; font-size: 0.75rem; color: hsl(var(--muted-foreground)); }
+.popup-hint .marker { color: hsl(var(--brand)); font-family: var(--font-mono); flex-shrink: 0; }
+.popup-actions { display: flex; gap: 0.5rem; padding-top: 0.25rem; }
+.popup-actions .btn { flex: 1; height: 2.5rem; border-radius: 0.75rem; font-weight: 500; }
+.popup-actions .btn-primary { background: hsl(var(--brand)); color: hsl(var(--brand-foreground)); box-shadow: 0 0 20px -8px hsl(var(--glow) / 0.6); }
+.popup-actions .btn-primary:hover { opacity: 0.9; }
+.popup-actions .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* spinner */
+.css-spinner, .css-spinner-sm {
+  border-radius: 9999px; border-style: solid;
+  border-color: hsl(var(--brand) / 0.2);
+  border-top-color: hsl(var(--brand));
+  animation: spin-slow 1s linear infinite;
+}
+.css-spinner { width: 1.5rem; height: 1.5rem; border-width: 3px; }
+.css-spinner-sm { width: 1rem; height: 1rem; border-width: 2px; display: inline-block; vertical-align: middle; }
+
+/* === antivirus popup === */
+.popup-card.antivirus { max-width: 32rem; }
+.popup-warning-bar { height: 6px; width: 100%; background: linear-gradient(90deg, #f59e0b, #ef4444, #f59e0b); }
+.popup-close {
+  position: absolute; right: 1rem; top: 1.25rem; z-index: 10;
+  width: 2rem; height: 2rem; border-radius: 9999px;
+  display: flex; align-items: center; justify-content: center;
+  color: hsl(var(--muted-foreground)); font-family: var(--font-mono);
+  transition: background 0.2s, color 0.2s;
+}
+.popup-close:hover { background: hsl(var(--muted)); color: hsl(var(--foreground)); }
+.av-body { padding: 1.5rem; }
+@media (min-width: 640px) { .av-body { padding: 2rem; } }
+.av-title-row { display: flex; align-items: flex-start; gap: 1rem; }
+.av-icon-wrap { position: relative; flex-shrink: 0; }
+.av-icon-wrap::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 1rem; background: rgba(245,158,11,0.3); filter: blur(8px); animation: pulse-glow 3s ease-in-out infinite; }
+.av-icon {
+  width: 3.5rem; height: 3.5rem; border-radius: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #f59e0b, #dc2626);
+  color: #fff; font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700;
+  box-shadow: 0 0 30px -5px rgba(245,158,11,0.6);
+}
+.av-title-text { flex: 1; padding-top: 0.25rem; }
+.av-title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.025em; }
+.av-sub { margin-top: 0.25rem; font-size: 0.875rem; color: hsl(var(--muted-foreground)); }
+.av-sub b { color: hsl(var(--foreground)); }
+.av-sub .ver-mono { font-family: var(--font-mono); color: hsl(var(--brand)); }
+.av-explanation {
+  margin-top: 1.25rem; border: 1px solid rgba(245,158,11,0.3); background: rgba(245,158,11,0.05);
+  border-radius: 1rem; padding: 1rem; font-size: 0.875rem; line-height: 1.625;
+  display: flex; flex-direction: column; gap: 0.75rem;
+}
+.av-explanation p { }
+.av-explanation p.muted { color: hsl(var(--muted-foreground)); }
+.av-explanation b { color: hsl(var(--foreground)); }
+.av-steps { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.625rem; list-style: none; }
+.av-step {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  border: 1px solid hsl(var(--border) / 0.6); background: hsl(var(--muted) / 0.3);
+  border-radius: 0.75rem; padding: 0.75rem;
+}
+.av-step-num { width: 1.75rem; height: 1.75rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; background: hsl(var(--brand) / 0.15); color: hsl(var(--brand)); font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; }
+.av-step-text { flex: 1; }
+.av-step-title { font-weight: 500; font-size: 0.875rem; }
+.av-step-desc { margin-top: 0.125rem; font-size: 0.75rem; color: hsl(var(--muted-foreground)); line-height: 1.625; }
+.av-agreement {
+  margin-top: 1.25rem; display: flex; align-items: flex-start; gap: 0.75rem;
+  border: 1px solid hsl(var(--border) / 0.6); background: hsl(var(--muted) / 0.3);
+  border-radius: 0.75rem; padding: 0.75rem; cursor: pointer;
+  transition: background 0.2s;
+}
+.av-agreement:hover { background: hsl(var(--muted) / 0.5); }
+.av-checkbox {
+  width: 1.25rem; height: 1.25rem; flex-shrink: 0; margin-top: 0.125rem;
+  border: 1px solid hsl(var(--border)); border-radius: 0.25rem;
+  appearance: none; -webkit-appearance: none; cursor: pointer;
+  position: relative; background: hsl(var(--background));
+  transition: all 0.2s;
+}
+.av-checkbox:checked { background: hsl(var(--brand)); border-color: hsl(var(--brand)); }
+.av-checkbox:checked::after { content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: hsl(var(--brand-foreground)); font-size: 0.75rem; font-weight: 700; }
+.av-agreement-text { font-size: 0.875rem; color: hsl(var(--muted-foreground)); }
+.av-actions { margin-top: 1.25rem; display: flex; flex-direction: column-reverse; gap: 0.5rem; }
+@media (min-width: 640px) { .av-actions { flex-direction: row; } }
+.av-actions .btn { flex: 1; height: 2.5rem; border-radius: 0.75rem; }
+.av-actions .btn-download {
+  background: linear-gradient(90deg, #f59e0b, #dc2626);
+  color: #fff; box-shadow: 0 0 20px -8px rgba(245,158,11,0.6);
+}
+.av-actions .btn-download:hover { opacity: 0.9; }
+.av-actions .btn-download:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+/* ============ TOAST ============ */
+.toast {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 100;
+  display: flex; flex-direction: column; gap: 0.25rem;
+  border-radius: 0.75rem; padding: 0.75rem 1rem;
+  background: hsl(var(--card) / 0.95); backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.6);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+  max-width: 24rem;
+}
+.toast.open { transform: translateX(0); }
+.toast-title { font-weight: 600; font-size: 0.875rem; }
+.toast-desc { font-size: 0.75rem; color: hsl(var(--muted-foreground)); }
+
+/* ============ ANIMATIONS ============ */
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+@keyframes float-slow { 0%, 100% { transform: translate(0,0); } 33% { transform: translate(15px,-30px); } 66% { transform: translate(-15px,15px); } }
+@keyframes float-3d { 0%, 100% { transform: translateY(0) rotateX(0) rotateY(0); } 25% { transform: translateY(-8px) rotateX(2deg) rotateY(-2deg); } 50% { transform: translateY(-12px) rotateX(0) rotateY(2deg); } 75% { transform: translateY(-8px) rotateX(-2deg) rotateY(-2deg); } }
+@keyframes pulse-glow { 0%, 100% { opacity: 1; box-shadow: 0 0 20px -5px hsl(var(--glow) / 0.5); } 50% { opacity: 0.85; box-shadow: 0 0 40px -5px hsl(var(--glow) / 0.8); } }
+@keyframes gradient-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes ping-slow { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(2.2); opacity: 0; } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes slide-in-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes glitch { 0%, 100% { transform: translate(0); text-shadow: 0 0 0 transparent; } 20% { transform: translate(-2px,2px); text-shadow: 2px 0 hsl(var(--brand)), -2px 0 cyan; } 40% { transform: translate(-2px,-2px); text-shadow: -2px 0 hsl(var(--brand)), 2px 0 lime; } 60% { transform: translate(2px,2px); text-shadow: 2px 0 hsl(var(--brand)), -2px 0 magenta; } 80% { transform: translate(2px,-2px); text-shadow: -2px 0 hsl(var(--brand)), 2px 0 cyan; } }
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+@keyframes gradient-text { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+@keyframes scan-glow { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float-slow { animation: float-slow 12s ease-in-out infinite; }
+.animate-float-3d { animation: float-3d 8s ease-in-out infinite; transform-style: preserve-3d; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-blink { animation: blink 1s step-start infinite; }
+.animate-slide-up { animation: slide-in-up 0.5s ease-out forwards; }
+.shimmer-bg {
+  background: linear-gradient(90deg, transparent 0%, hsl(var(--brand) / 0.2) 50%, transparent 100%);
+  background-size: 200% 100%; animation: shimmer 2s infinite;
+}
+
+/* ============ SCROLLBAR ============ */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: hsl(var(--background)); }
+::-webkit-scrollbar-thumb { background: hsl(var(--muted)); border-radius: 5px; border: 2px solid hsl(var(--background)); }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--brand) / 0.7); }
+::selection { background: hsl(var(--brand) / 0.3); color: hsl(var(--foreground)); }
+
+/* ============ RESPONSIVE ============ */
+.hidden-mobile { display: none; }
+@media (min-width: 768px) { .hidden-mobile { display: inline-flex; } }
+</style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="bg-grid-bg"></div>
+<div class="bg-blobs">
+  <div class="bg-blob" style="top:-128px; left:-128px; width:480px; height:480px; background:radial-gradient(circle, hsl(var(--brand) / 0.7), transparent 70%); animation: float-slow 12s ease-in-out infinite;"></div>
+  <div class="bg-blob" style="top:33%; right:-160px; width:560px; height:560px; background:radial-gradient(circle, hsl(var(--brand) / 0.6), transparent 70%); animation: float 6s ease-in-out infinite;"></div>
+  <div class="bg-blob" style="bottom:-160px; left:25%; width:420px; height:420px; background:radial-gradient(circle, hsl(var(--brand) / 0.5), transparent 70%); animation: float-slow 12s ease-in-out infinite;"></div>
+</div>
+<canvas id="particles-canvas"></canvas>
+<div class="bg-vignette"></div>
+
+<!-- Header -->
+<header class="header" id="header">
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-badge">E</div>
+      <div class="logo-text">
+        <span class="name">Exclusion<span>Launcher</span></span>
+        <span class="ver">v 2.4 · stable</span>
+      </div>
+    </a>
+    <nav class="nav-desktop">
+      <a href="#clients" class="nav-link">Клиенты</a>
+      <a href="#features" class="nav-link">Возможности</a>
+      <a href="#stats" class="nav-link">Статистика</a>
+      <a href="#download" class="nav-link">Скачать</a>
+    </nav>
+    <div class="header-right">
+      <div style="position: relative;">
+        <button class="theme-btn" id="theme-btn">
+          <span class="theme-swatch" id="theme-swatch"></span>
+          <span class="theme-name" id="theme-name">Sunset</span>
+          <span class="theme-caret">▼</span>
+        </button>
+        <div class="theme-menu" id="theme-menu">
+          <div class="theme-menu-title">Тема оформления — 10 шт.</div>
+          <div class="theme-grid" id="theme-grid"></div>
+        </div>
+      </div>
+      <a href="#download" class="btn btn-primary btn-sm hidden-mobile">Скачать лаунчер</a>
+      <button class="menu-toggle" id="menu-toggle">≡</button>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="#clients">Клиенты</a>
+    <a href="#features">Возможности</a>
+    <a href="#stats">Статистика</a>
+    <a href="#download">Скачать лаунчер</a>
+  </nav>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Онлайн · 13 клиентов · 8 версий
+      </div>
+      <h1 class="hero-title">
+        Exclusion<br class="hidden-mobile" style="display:none;">
+        <span class="grad" data-text="Launcher">Launcher</span>
+      </h1>
+      <p class="hero-sub">
+        Современный лаунчер для Minecraft-клиентов. Скачивай сам лаунчер
+        одним файлом — внутри уже все 13 клиентов с выбором версий.
+        Stable-сборки, проверенные файлы, удобный интерфейс.
+      </p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg" id="hero-download-btn">
+          <span class="btn-download-label">
+            <span style="font-family: var(--font-mono);">↓</span>
+            Скачать лаунчер
+            <span style="margin-left: 0.5rem; font-size: 0.75rem; opacity: 0.7; font-family: var(--font-mono); animation: blink 1s step-start infinite;">_</span>
+          </span>
+        </button>
+        <a href="#clients" class="btn btn-outline btn-lg">
+          <span style="margin-right: 0.5rem; font-family: var(--font-mono);">▸</span>
+          Список клиентов
+        </a>
+      </div>
+      <div class="hero-meta">
+        <span>Windows 10/11</span>
+        <span class="sep">·</span>
+        <span>~14.8 MB</span>
+        <span class="sep">·</span>
+        <span>v2.4.1 stable</span>
+        <span class="sep">·</span>
+        <span>SHA-256 проверен</span>
+      </div>
+      <div class="hero-stats" id="stats">
+        <div class="stat-card">
+          <div class="stat-value" data-counter="13" data-decimals="0">0</div>
+          <div class="stat-label">Клиентов</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" data-counter="1.4" data-decimals="1" data-suffix="M">0</div>
+          <div class="stat-label">Скачиваний</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" data-counter="4.7" data-decimals="1">0</div>
+          <div class="stat-label">Рейтинг</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" data-counter="100" data-decimals="0" data-suffix="%">0</div>
+          <div class="stat-label">Проверено</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download plate -->
+  <section class="download-section" id="download">
+    <div class="container">
+      <div class="download-plate">
+        <div class="download-plate-bg"></div>
+        <div class="download-plate-grid"></div>
+        <div class="scan-glow"></div>
+        <div class="download-plate-inner">
+          <div class="download-text">
+            <div class="download-label">◆ Отдельная плашка</div>
+            <h2 class="download-title">Скачать <span>лаунчер</span></h2>
+            <p class="download-desc">
+              Один установочный файл. Внутри уже все 13 клиентов с выбором
+              версий — никаких отдельных скачиваний для каждого клиента.
+              Запусти лаунчер → выбери клиент → выбери версию → играй.
+            </p>
+            <div class="download-meta">
+              <span>Windows 10/11</span>
+              <span class="sep">·</span>
+              <span>14.8 MB</span>
+              <span class="sep">·</span>
+              <span>v2.4.1 stable</span>
+              <span class="sep">·</span>
+              <span class="ok">SHA-256 ✓</span>
+            </div>
+          </div>
+          <div class="download-btn-wrap">
+            <button class="btn-download" id="plate-download-btn">
+              <span class="shimmer"></span>
+              <span class="btn-download-label">
+                <span style="font-family: var(--font-mono); font-size: 1.25rem;">↓</span>
+                Скачать лаунчер
+              </span>
+            </button>
+            <div class="download-hint">нажмите → запустится Loader → затем окно антивируса</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Clients list -->
+  <section class="clients-section" id="clients">
+    <div class="container">
+      <div class="clients-header">
+        <div class="clients-label"><span>◆ Каталог</span></div>
+        <h2 class="clients-title">Список <span>клиентов</span></h2>
+        <p class="clients-desc">13 клиентов · 8 версий · скачивается всё одним лаунчером выше</p>
+        <div class="clients-filters">
+          <input type="text" class="input" id="search-input" placeholder="Поиск по имени или версии..." />
+          <div class="select-wrap">
+            <select class="select select-full select-52" id="version-filter">
+              <option value="all">Все версии</option>
+            </select>
+          </div>
+          <div class="select-wrap">
+            <select class="select select-full select-44" id="sort-select">
+              <option value="popular">По популярности</option>
+              <option value="rating">По рейтингу</option>
+              <option value="name">По имени (A→Z)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="clients-list" id="clients-list"></div>
+      <div class="clients-empty" id="clients-empty" style="display:none;"></div>
+      <div class="clients-count" id="clients-count">Показано 13 из 13 клиентов</div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="features-header">
+        <div class="features-label"><span>◆ Возможности</span></div>
+        <h2 class="features-title">Почему именно <span class="glitch" data-text="ExclusionLauncher">ExclusionLauncher</span></h2>
+        <p class="features-desc">Всё, что нужно для комфортного запуска Minecraft-клиентов — в одном месте. Без рекламы, без лишних шагов, с вниманием к деталям.</p>
+      </div>
+      <div class="features-grid" id="features-grid"></div>
+      <div class="marquee-wrap">
+        <div class="marquee-track" id="marquee-track"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand-block">
+        <div class="footer-brand-row">
+          <div class="footer-brand-badge">E</div>
+          <span class="footer-brand-name">Exclusion<span>Launcher</span></span>
+        </div>
+        <p class="footer-desc">Современный лаунчер для Minecraft-клиентов. 13 клиентов, 8 версий, 10 тем оформления. Всё бесплатно, без рекламы, для сообщества.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Telegram">TG</a>
+          <a href="#" aria-label="Discord">DC</a>
+          <a href="#" aria-label="GitHub">GH</a>
+        </div>
+      </div>
+      <div>
+        <h4 class="footer-col-title">Навигация</h4>
+        <ul class="footer-links">
+          <li><a href="#clients">Список клиентов</a></li>
+          <li><a href="#features">Возможности</a></li>
+          <li><a href="#stats">Статистика</a></li>
+          <li><a href="#download">Скачать лаунчер</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-col-title">Поддержка</h4>
+        <ul class="footer-links">
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Discord-сервер</a></li>
+          <li><a href="#">Сообщить о баге</a></li>
+          <li><a href="#">Стать контрибьютором</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2025 ExclusionLauncher. Не аффилирован с Mojang AB / Microsoft. Minecraft — торговая марка Mojang AB.</div>
+      <div class="footer-made">Сделано для комьюнити <span class="heart">◆</span></div>
+    </div>
+  </div>
+</footer>
+
+<!-- Loader popup -->
+<div class="popup-overlay" id="loader-popup">
+  <div class="popup-card">
+    <div class="popup-scan-line"></div>
+    <div class="popup-header">
+      <div class="popup-avatar" id="loader-avatar">EL</div>
+      <div class="popup-header-text">
+        <div class="popup-header-label">◆ Loader Started</div>
+        <div class="popup-header-title">ExclusionLauncher <span class="ver">· v2.4.1</span></div>
+      </div>
+      <div id="loader-status-icon"><div class="css-spinner"></div></div>
+    </div>
+    <div class="popup-body">
+      <div class="popup-status-row">
+        <div class="popup-status-label">
+          <span class="text" id="loader-status-text">Загрузка лаунчера...</span>
+          <span class="pct" id="loader-pct">0%</span>
+        </div>
+        <div class="popup-progress">
+          <div class="popup-progress-fill" id="loader-fill"></div>
+          <div class="shimmer-overlay"></div>
+        </div>
+      </div>
+      <div class="popup-steps">
+        <div class="popup-steps-title">▸ Журнал загрузки</div>
+        <div id="loader-steps"></div>
+      </div>
+      <div class="popup-hint">
+        <span class="marker">▲</span>
+        <span>После загрузки будет показано окно с информацией об антивирусе. Это типичная процедура для программ с DLL-инъекцией.</span>
+      </div>
+      <div class="popup-actions">
+        <button class="btn btn-ghost" id="loader-cancel">Отмена</button>
+        <button class="btn btn-primary" id="loader-continue" disabled>Подождите...</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Antivirus popup -->
+<div class="popup-overlay" id="antivirus-popup">
+  <div class="popup-card antivirus">
+    <div class="popup-warning-bar"></div>
+    <button class="popup-close" id="av-close">✕</button>
+    <div class="av-body">
+      <div class="av-title-row">
+        <div class="av-icon-wrap">
+          <div class="av-icon">▲</div>
+        </div>
+        <div class="av-title-text">
+          <h2 class="av-title">Внимание: антивирус может ругаться</h2>
+          <p class="av-sub">Перед скачиванием <b>ExclusionLauncher</b> <span class="ver-mono">v2.4.1</span> — прочитайте, пожалуйста.</p>
+        </div>
+      </div>
+      <div class="av-explanation">
+        <p>Этот лаунчер модифицирует процесс Minecraft и использует DLL-инъекцию для встраивания функционала клиентов. Из-за этого Windows Defender, Kaspersky, Avast и другие антивирусы могут ложно среагировать на файл — выдать предупреждение или удалить его.</p>
+        <p class="muted">Это <b>ложноположительная детекция</b>, типичная для любых программ, которые внедряются в чужой процесс. Сам файл не содержит вредоносного кода, если скачан с официального сайта.</p>
+      </div>
+      <ol class="av-steps">
+        <li class="av-step">
+          <div class="av-step-num">1</div>
+          <div class="av-step-text">
+            <div class="av-step-title">Добавьте папку лаунчера в исключения</div>
+            <div class="av-step-desc">В Windows Defender: Защита от вирусов → Управление настройками → Исключения. Так файлы не будут удаляться автоматически.</div>
+          </div>
+        </li>
+        <li class="av-step">
+          <div class="av-step-num">2</div>
+          <div class="av-step-text">
+            <div class="av-step-title">Если браузер блокирует скачивание</div>
+            <div class="av-step-desc">Нажмите «Сохранить в любом случае» или «Продолжить» — это известное предупреждение для неизвестных издателей.</div>
+          </div>
+        </li>
+        <li class="av-step">
+          <div class="av-step-num">3</div>
+          <div class="av-step-text">
+            <div class="av-step-title">Скачивайте только с официального сайта</div>
+            <div class="av-step-desc">Не используйте сторонние «зеркала» и файлообменники — только так можно гарантировать оригинальный файл.</div>
+          </div>
+        </li>
+      </ol>
+      <label class="av-agreement">
+        <input type="checkbox" class="av-checkbox" id="av-agree" />
+        <span class="av-agreement-text">Я прочитал(а), понимаю, что делаю, и подтверждаю, что скачиваю файл с официального сайта ExclusionLauncher.</span>
+      </label>
+      <div class="av-actions">
+        <button class="btn btn-ghost" id="av-cancel">Отмена</button>
+        <button class="btn btn-download" id="av-download" disabled>
+          <span style="margin-right: 0.375rem; font-family: var(--font-mono);">✓</span>
+          Я понял — скачать ExclusionLauncher
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title"></div>
+  <div class="toast-desc" id="toast-desc"></div>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const clients = [
+  { name: "Dimasik", tagline: "Классический клиент с гибкими настройками", versions: ["26.2", "1.21.4", "1.21.11"], accent: "linear-gradient(135deg, #ff6b35, #f7931e)", code: "Di", downloads: "248K", rating: 4.8, badge: "Популярный" },
+  { name: "Nursultan", tagline: "Мощный функционал и стабильность", versions: ["1.16.5", "1.21.11", "26.2"], accent: "linear-gradient(135deg, #00c2ff, #0066ff)", code: "Nu", downloads: "192K", rating: 4.7 },
+  { name: "Nuclear", tagline: "Взрывная производительность", versions: ["Beta 1.21.11", "1.16.5"], accent: "linear-gradient(135deg, #facc15, #ea580c)", code: "Nc", downloads: "156K", rating: 4.6, badge: "Beta" },
+  { name: "wild", tagline: "Дикий и непредсказуемый", versions: ["1.16.5", "Beta 1.21.11"], accent: "linear-gradient(135deg, #84cc16, #16a34a)", code: "Wi", downloads: "134K", rating: 4.5 },
+  { name: "Meow", tagline: "Мягкий, но с когтями", versions: ["1.16.5", "Beta 1.21.11"], accent: "linear-gradient(135deg, #f472b6, #db2777)", code: "Me", downloads: "118K", rating: 4.7 },
+  { name: "Catlovan", tagline: "Release версия с полным набором", versions: ["1.16.5 release", "Beta 1.21.11"], accent: "linear-gradient(135deg, #fb923c, #f97316)", code: "Ca", downloads: "98K", rating: 4.4, badge: "Release" },
+  { name: "Quick", tagline: "Скорость превыше всего", versions: ["Alpha 1.21.11", "1.21.4"], accent: "linear-gradient(135deg, #22d3ee, #0891b2)", code: "Qu", downloads: "87K", rating: 4.3, badge: "Alpha" },
+  { name: "Ryzen", tagline: "Производительность как процессор", versions: ["1.21.11"], accent: "linear-gradient(135deg, #ef4444, #b91c1c)", code: "Ry", downloads: "76K", rating: 4.6 },
+  { name: "Aboba", tagline: "Мемный клиент для своих", versions: ["1.21.4"], accent: "linear-gradient(135deg, #a78bfa, #7c3aed)", code: "Ab", downloads: "65K", rating: 4.2 },
+  { name: "Delta", tagline: "Двойной выбор версий", versions: ["1.21.11", "1.21.4"], accent: "linear-gradient(135deg, #14b8a6, #0d9488)", code: "De", downloads: "58K", rating: 4.5 },
+  { name: "rockstar", tagline: "Звёздный клиент для профи", versions: ["1.21.11", "1.20.4"], accent: "linear-gradient(135deg, #f59e0b, #d97706)", code: "Rs", downloads: "51K", rating: 4.7 },
+  { name: "Flower", tagline: "Цветочный и эффективный", versions: ["1.21.11", "1.21.4"], accent: "linear-gradient(135deg, #ec4899, #be185d)", code: "Fl", downloads: "44K", rating: 4.4 },
+  { name: "Wexside", tagline: "Сторонний подход к делу", versions: ["1.21.11", "1.16.5"], accent: "linear-gradient(135deg, #8b5cf6, #6d28d9)", code: "We", downloads: "39K", rating: 4.6, badge: "Топ" }
+];
+
+const themes = [
+  { name: "Sunset", value: "dark", swatch: "linear-gradient(135deg, #ff7a00, #ff3d00)", desc: "Оранжево-красная" },
+  { name: "Nuclear", value: "nuclear", swatch: "linear-gradient(135deg, #ff0033, #4a0000)", desc: "Красно-чёрная биозащита" },
+  { name: "Blood", value: "blood", swatch: "linear-gradient(135deg, #dc143c, #5e0b1a)", desc: "Глубокая багровая" },
+  { name: "Cyber", value: "cyber", swatch: "linear-gradient(135deg, #a855f7, #ec4899)", desc: "Фиолетово-розовая неон" },
+  { name: "Void", value: "void", swatch: "linear-gradient(135deg, #6d28d9, #1e1b4b)", desc: "Глубокая фиолетово-чёрная" },
+  { name: "Toxic", value: "toxic", swatch: "linear-gradient(135deg, #22c55e, #84cc16)", desc: "Токсично-зелёная" },
+  { name: "Ice", value: "ice", swatch: "linear-gradient(135deg, #06b6d4, #3b82f6)", desc: "Ледяная голубая" },
+  { name: "Coral", value: "coral", swatch: "linear-gradient(135deg, #ff6b6b, #ff8787)", desc: "Кораллово-розовая" },
+  { name: "Gold", value: "gold", swatch: "linear-gradient(135deg, #fbbf24, #f59e0b)", desc: "Золотая роскошь" },
+  { name: "Midnight", value: "midnight", swatch: "linear-gradient(135deg, #475569, #0f172a)", desc: "Глубокая синяя ночь" }
+];
+
+const FEATURES = [
+  { num: "01", title: "Быстрый старт", desc: "Запусти любой клиент за пару кликов. Не нужно возиться с зависимостями и Java-путями.", from: "#f97316", to: "#dc2626" },
+  { num: "02", title: "Мультиверсионность", desc: "Поддержка версий Minecraft от 1.16.5 до 26.2. Выбирай подходящую под свой сервер.", from: "#a855f7", to: "#db2777" },
+  { num: "03", title: "Проверенные сборки", desc: "Все клиенты проходят проверку перед публикацией. Хеши файлов сверяются автоматически.", from: "#22c55e", to: "#059669" },
+  { num: "04", title: "Молниеносная загрузка", desc: "CDN-доставка с резервированием канала. Среднее время загрузки — 4 секунды.", from: "#fbbf24", to: "#ca8a04" },
+  { num: "05", title: "10 тем оформления", desc: "Sunset, Nuclear, Blood, Cyber, Void, Toxic, Ice, Coral, Gold, Midnight. Выбирай под настроение.", from: "#06b6d4", to: "#2563eb" },
+  { num: "06", title: "Авто-обновление", desc: "Лаунчер сам проверяет и подтягивает новые версии клиентов. Не нужно ничего качать вручную.", from: "#f43f5e", to: "#be185d" },
+  { num: "07", title: "История запусков", desc: "Лог запусков и скачиваний с таймстампами. Всегда видно, какой клиент и когда запускался.", from: "#6366f1", to: "#4338ca" },
+  { num: "08", title: "Loader с прогрессом", desc: "Подробный журнал загрузки с шагами и прогресс-баром. Видно, что происходит на каждом этапе.", from: "#14b8a6", to: "#0891b2" }
+];
+
+const LOADER_STEPS = [
+  "Инициализация ядра лаунчера",
+  "Проверка целостности файлов",
+  "Подключение к CDN",
+  "Распаковка ресурсов",
+  "Проверка цифровой подписи",
+  "Финальная подготовка сборки"
+];
+
+const LAUNCHER_DOWNLOAD_URL = "https://github.com/exclusionlauncher/Exclusionlauncher.github.io/raw/main/Exclusionlauncher.exe";
+
+/* ============ STATE ============ */
+let loaderTimer = null;
+let loaderStartedAt = 0;
+const LOADER_DURATION = 3200;
+
+/* ============ INIT ============ */
+function init() {
+  initParticles();
+  initTheme();
+  initHeaderScroll();
+  initMobileMenu();
+  renderClients();
+  renderFeatures();
+  renderMarquee();
+  renderVersionFilter();
+  initSearch();
+  initDownloadButtons();
+  initPopups();
+  initAnimatedCounters();
+}
+
+/* ============ PARTICLES ============ */
+function initParticles() {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let raf = 0;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  function resize() {
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+
+  function getBrand() {
+    return getComputedStyle(document.documentElement).getPropertyValue('--brand').trim() || '24 95% 56%';
+  }
+
+  function spawn() {
+    const count = Math.min(60, Math.floor(window.innerWidth / 22));
+    particles = [];
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        r: Math.random() * 2 + 0.6,
+        a: Math.random() * 0.5 + 0.1,
+        ta: Math.random() * 0.5 + 0.1
+      });
+    }
+  }
+  spawn();
+
+  function draw() {
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    const brand = getBrand();
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0) p.x = window.innerWidth;
+      if (p.x > window.innerWidth) p.x = 0;
+      if (p.y < 0) p.y = window.innerHeight;
+      if (p.y > window.innerHeight) p.y = 0;
+      p.a += (p.ta - p.a) * 0.02;
+      if (Math.abs(p.a - p.ta) < 0.02) p.ta = Math.random() * 0.5 + 0.1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'hsla(' + brand + ', ' + p.a + ')';
+      ctx.fill();
+    }
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = 'hsla(' + brand + ', ' + (0.08 * (1 - dist / 120)) + ')';
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+    raf = requestAnimationFrame(draw);
+  }
+  draw();
+
+  window.addEventListener('resize', () => { resize(); spawn(); });
+}
+
+/* ============ THEME ============ */
+function initTheme() {
+  const saved = localStorage.getItem('exl-theme') || 'dark';
+  applyTheme(saved);
+
+  const grid = document.getElementById('theme-grid');
+  themes.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'theme-item';
+    item.dataset.value = t.value;
+    item.innerHTML = `
+      <div class="theme-item-top">
+        <span class="theme-item-swatch" style="background:${t.swatch}"></span>
+        <span class="theme-item-name">${t.name}</span>
+        <span class="theme-item-active">●</span>
+      </div>
+      <div class="theme-item-desc">${t.desc}</div>
+    `;
+    item.addEventListener('click', () => {
+      applyTheme(t.value);
+      closeThemeMenu();
+    });
+    grid.appendChild(item);
+  });
+  updateThemeActive();
+
+  const btn = document.getElementById('theme-btn');
+  const menu = document.getElementById('theme-menu');
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+}
+function closeThemeMenu() {
+  document.getElementById('theme-menu').classList.remove('open');
+}
+function applyTheme(value) {
+  // remove all theme classes
+  themes.forEach(t => {
+    document.documentElement.classList.remove(t.value);
+  });
+  document.documentElement.classList.add(value);
+  localStorage.setItem('exl-theme', value);
+  updateThemeButton(value);
+  updateThemeActive();
+}
+function updateThemeButton(value) {
+  const t = themes.find(x => x.value === value) || themes[0];
+  document.getElementById('theme-swatch').style.background = t.swatch;
+  document.getElementById('theme-name').textContent = t.name;
+}
+function updateThemeActive() {
+  const current = localStorage.getItem('exl-theme') || 'dark';
+  document.querySelectorAll('.theme-item').forEach(item => {
+    const isActive = item.dataset.value === current;
+    item.querySelector('.theme-item-active').style.display = isActive ? 'inline' : 'none';
+  });
+}
+
+/* ============ HEADER ============ */
+function initHeaderScroll() {
+  const header = document.getElementById('header');
+  const onScroll = () => {
+    if (window.scrollY > 12) header.classList.add('scrolled');
+    else header.classList.remove('scrolled');
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
+function initMobileMenu() {
+  const toggle = document.getElementById('menu-toggle');
+  const nav = document.getElementById('mobile-nav');
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    toggle.textContent = open ? '✕' : '≡';
+  });
+  nav.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      nav.classList.remove('open');
+      toggle.textContent = '≡';
+    });
+  });
+}
+
+/* ============ CLIENTS ============ */
+function renderClients() {
+  const list = document.getElementById('clients-list');
+  const search = document.getElementById('search-input').value.toLowerCase().trim();
+  const version = document.getElementById('version-filter').value;
+  const sort = document.getElementById('sort-select').value;
+
+  let filtered = clients.filter(c => {
+    const matchQuery = !search ||
+      c.name.toLowerCase().includes(search) ||
+      c.tagline.toLowerCase().includes(search) ||
+      c.versions.some(v => v.toLowerCase().includes(search));
+    const matchVersion = version === 'all' || c.versions.some(v => v === version);
+    return matchQuery && matchVersion;
+  });
+
+  if (sort === 'popular') {
+    filtered = filtered.sort((a, b) => parseFloat(b.downloads) - parseFloat(a.downloads));
+  } else if (sort === 'rating') {
+    filtered = filtered.sort((a, b) => b.rating - a.rating);
+  } else if (sort === 'name') {
+    filtered = filtered.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  list.innerHTML = '';
+  if (filtered.length === 0) {
+    document.getElementById('clients-empty').style.display = 'block';
+    document.getElementById('clients-empty').textContent = 'Ничего не найдено по запросу «' + search + '».';
+  } else {
+    document.getElementById('clients-empty').style.display = 'none';
+    filtered.forEach((c, i) => {
+      const row = document.createElement('div');
+      row.className = 'client-row';
+      row.style.animationDelay = (Math.min(i * 0.03, 0.3)) + 's';
+      row.innerHTML = `
+        <div class="client-avatar" style="background:${c.accent}">${c.code}</div>
+        <div class="client-info">
+          <div class="client-name-row">
+            <h3 class="client-name">${c.name}</h3>
+            ${c.badge ? `<span class="client-badge">${c.badge}</span>` : ''}
+          </div>
+          <p class="client-tag">${c.tagline}</p>
+        </div>
+        <div class="client-meta">
+          <span>${c.downloads} DL</span>
+          <span class="rating">★ ${c.rating.toFixed(1)}</span>
+        </div>
+        <div class="client-versions">
+          ${c.versions.map(v => `<span class="client-version">${v}</span>`).join('')}
+        </div>
+      `;
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('clients-count').textContent = `Показано ${filtered.length} из ${clients.length} клиентов`;
+}
+
+function renderVersionFilter() {
+  const select = document.getElementById('version-filter');
+  const versions = Array.from(new Set(clients.flatMap(c => c.versions))).sort();
+  versions.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = v;
+    select.appendChild(opt);
+  });
+}
+
+function initSearch() {
+  document.getElementById('search-input').addEventListener('input', renderClients);
+  document.getElementById('version-filter').addEventListener('change', renderClients);
+  document.getElementById('sort-select').addEventListener('change', renderClients);
+}
+
+/* ============ FEATURES ============ */
+function renderFeatures() {
+  const grid = document.getElementById('features-grid');
+  FEATURES.forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'feature-card';
+    card.style.setProperty('--accent-from', f.from);
+    card.style.setProperty('--accent-to', f.to);
+    card.innerHTML = `
+      <div class="feature-num-row">
+        <span class="feature-num">${f.num}</span>
+        <span class="feature-num-total">/ 08</span>
+      </div>
+      <h3 class="feature-title">${f.title}</h3>
+      <p class="feature-desc">${f.desc}</p>
+      <div class="underline"></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderMarquee() {
+  const track = document.getElementById('marquee-track');
+  const names = clients.map(c => c.name).concat(clients.map(c => c.name));
+  names.forEach(n => {
+    const span = document.createElement('span');
+    span.className = 'marquee-item';
+    span.textContent = n + ' ';
+    const sep = document.createElement('span');
+    sep.className = 'sep';
+    sep.textContent = '◆ ';
+    span.appendChild(sep);
+    track.appendChild(span);
+  });
+}
+
+/* ============ ANIMATED COUNTERS ============ */
+function initAnimatedCounters() {
+  const els = document.querySelectorAll('[data-counter]');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.4 });
+  els.forEach(el => observer.observe(el));
+}
+function animateCounter(el) {
+  const target = parseFloat(el.dataset.counter);
+  const decimals = parseInt(el.dataset.decimals || '0');
+  const suffix = el.dataset.suffix || '';
+  const duration = 1500;
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = (target * eased).toFixed(decimals) + suffix;
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ============ DOWNLOAD FLOW ============ */
+function initDownloadButtons() {
+  document.getElementById('hero-download-btn').addEventListener('click', openLoader);
+  document.getElementById('plate-download-btn').addEventListener('click', openLoader);
+}
+
+function initPopups() {
+  document.getElementById('loader-cancel').addEventListener('click', closeLoader);
+  document.getElementById('loader-continue').addEventListener('click', () => {
+    if (loaderTimer) return; // still loading
+    openAntivirus();
+  });
+  document.getElementById('av-close').addEventListener('click', closeAntivirus);
+  document.getElementById('av-cancel').addEventListener('click', closeAntivirus);
+  document.getElementById('av-agree').addEventListener('change', (e) => {
+    document.getElementById('av-download').disabled = !e.target.checked;
+  });
+  document.getElementById('av-download').addEventListener('click', () => {
+    if (document.getElementById('av-download').disabled) return;
+    triggerDownload();
+  });
+  // close on backdrop click
+  document.getElementById('loader-popup').addEventListener('click', (e) => {
+    if (e.target.id === 'loader-popup' && loaderTimer === null) closeLoader();
+  });
+  document.getElementById('antivirus-popup').addEventListener('click', (e) => {
+    if (e.target.id === 'antivirus-popup') closeAntivirus();
+  });
+  // esc
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeLoader();
+      closeAntivirus();
+    }
+  });
+}
+
+function openLoader() {
+  const popup = document.getElementById('loader-popup');
+  popup.classList.add('open');
+  // reset state
+  document.getElementById('loader-fill').style.width = '0%';
+  document.getElementById('loader-pct').textContent = '0%';
+  document.getElementById('loader-status-text').textContent = 'Загрузка лаунчера...';
+  document.getElementById('loader-status-icon').innerHTML = '<div class="css-spinner"></div>';
+  document.getElementById('loader-continue').textContent = 'Подождите...';
+  document.getElementById('loader-continue').disabled = true;
+  renderLoaderSteps(-1);
+  loaderStartedAt = Date.now();
+  loaderTimer = setInterval(tickLoader, 30);
+}
+
+function tickLoader() {
+  const elapsed = Date.now() - loaderStartedAt;
+  const pct = Math.min(100, (elapsed / LOADER_DURATION) * 100);
+  document.getElementById('loader-fill').style.width = pct + '%';
+  document.getElementById('loader-pct').textContent = Math.floor(pct) + '%';
+  const stepIdx = Math.min(LOADER_STEPS.length - 1, Math.floor((elapsed / LOADER_DURATION) * LOADER_STEPS.length));
+  renderLoaderSteps(stepIdx);
+  if (pct >= 100) {
+    clearInterval(loaderTimer);
+    loaderTimer = null;
+    document.getElementById('loader-status-text').textContent = 'Сборка готова';
+    document.getElementById('loader-status-icon').innerHTML = '<span style="color: hsl(var(--brand)); font-size: 1.25rem; font-family: var(--font-mono);">✓</span>';
+    document.getElementById('loader-continue').textContent = 'Продолжить →';
+    document.getElementById('loader-continue').disabled = false;
+    setTimeout(() => openAntivirus(), 600);
+  }
+}
+
+function renderLoaderSteps(currentIdx) {
+  const wrap = document.getElementById('loader-steps');
+  wrap.innerHTML = '';
+  LOADER_STEPS.forEach((step, i) => {
+    const div = document.createElement('div');
+    let cls = 'popup-step pending';
+    let marker = '○';
+    if (loaderTimer === null) {
+      // done
+      cls = 'popup-step done';
+      marker = '✓';
+    } else if (i < currentIdx) {
+      cls = 'popup-step done';
+      marker = '✓';
+    } else if (i === currentIdx) {
+      cls = 'popup-step current';
+      marker = '<span class="css-spinner-sm"></span>';
+    }
+    div.className = cls;
+    div.innerHTML = `<span class="marker">${marker}</span><span class="popup-step-text">${step}</span>${i === currentIdx && loaderTimer !== null ? '<span class="blink">▋</span>' : ''}`;
+    wrap.appendChild(div);
+  });
+}
+
+function closeLoader() {
+  if (loaderTimer) { clearInterval(loaderTimer); loaderTimer = null; }
+  document.getElementById('loader-popup').classList.remove('open');
+}
+
+function openAntivirus() {
+  closeLoader();
+  document.getElementById('antivirus-popup').classList.add('open');
+  document.getElementById('av-agree').checked = false;
+  document.getElementById('av-download').disabled = true;
+}
+
+function closeAntivirus() {
+  document.getElementById('antivirus-popup').classList.remove('open');
+}
+
+function triggerDownload() {
+  showToast('Загрузка лаунчера началась', 'ExclusionLauncher.exe — проверьте папку загрузок.');
+  // Real download from GitHub
+  try {
+    const a = document.createElement('a');
+    a.href = LAUNCHER_DOWNLOAD_URL;
+    a.download = 'ExclusionLauncher.exe';
+    a.rel = 'noopener noreferrer';
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch (e) {
+    window.open(LAUNCHER_DOWNLOAD_URL, '_blank', 'noopener,noreferrer');
+  }
+  closeAntivirus();
+}
+
+/* ============ TOAST ============ */
+let toastTimer = null;
+function showToast(title, desc) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-desc').textContent = desc;
+  t.classList.add('open');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('open'), 4000);
+}
+
+/* ============ START ============ */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
